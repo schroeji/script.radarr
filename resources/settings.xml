@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="Radarr">
+        <setting label="IP Address" type="ipaddress" id="ipaddress" default="127.0.0.1"/>
+        <setting label="Port" type="number" id="port" default="7878"/>
+        <setting label="Api Key" type="text" id="api-key" default=""/>
+    </category>
+</settings>
