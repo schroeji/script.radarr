@@ -1,5 +1,4 @@
 import asyncio
-import orjson
 from aiopyarr.models.host_configuration import PyArrHostConfiguration
 from aiopyarr.radarr_client import RadarrClient
 from aiopyarr.models.radarr import RadarrMovie
@@ -40,6 +39,9 @@ class Radarr():
 
     def GetAllMovies(self):
         return asyncio.get_event_loop().run_until_complete(self.client.async_get_movies())
+
+    def DownloadRelease(self, indexer_id, release_guid):
+        return asyncio.get_event_loop().run_until_complete(self.client.async_download_release(release_guid, indexer_id))
 
 
     async def AddMovieByTmdbId(self, tmdb_id):
