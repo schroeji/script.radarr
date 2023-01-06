@@ -3,6 +3,6 @@
     <category label="Radarr">
         <setting label="IP Address" type="ipaddress" id="ipaddress" default="127.0.0.1"/>
         <setting label="Port" type="number" id="port" default="7878"/>
-        <setting label="Api Key" type="text" id="api-key" default=""/>
+        <setting label="Api Key" type="text" id="api-key" default="b5eaf4d7da39413a9015d29a3e7a1cae"/>
     </category>
 </settings>

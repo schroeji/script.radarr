@@ -14,8 +14,7 @@ class Radarr():
 
     def GetStatus(self):
         """Example usage of aiopyarr."""
-        result = asyncio.get_event_loop().run_until_complete(self.client.async_get_system_status())
-        print(result)
+        return asyncio.get_event_loop().run_until_complete(self.client.async_get_system_status())
 
     async def SearchMovieTmdb(self, search_string):
         """Lookup information about movie.
@@ -29,8 +28,8 @@ class Radarr():
         print(result[0].tmdbId)
         return result[0]
 
-    async def FindRelease(self, radarr_id):
-        result = await self.client.async_get_release(radarr_id)
+    def FindRelease(self, radarr_id):
+        result = asyncio.get_event_loop().run_until_complete(self.client.async_get_release(radarr_id))
         print("Found {} releases".format(len(result)))
         return result
 
@@ -44,17 +43,14 @@ class Radarr():
 
 
     async def AddMovieByTmdbId(self, tmdb_id):
-        try:
-            root_folders = await self.client.async_get_root_folders()
-            print(root_folders)
-            movie_list = await self.client.async_lookup_movie(tmdb_id, True)
-            movie = movie_list[0]
-            movie.qualityProfileId = 1
-            movie.rootFolderPath = root_folders[0].path
-            added_movie = await self.client.async_add_movies(movie)
-            return added_movie
-        except Exception as e:
-            print(e)
+        root_folders = self.client.async_get_root_folders()
+        movie_list = await self.client.async_lookup_movie(tmdb_id, True)
+        movie = movie_list[0]
+        movie.qualityProfileId = 1
+        root_folders = await root_folders
+        movie.rootFolderPath = root_folders[0].path
+        added_movie = await self.client.async_add_movies(movie)
+        return added_movie
 
     async def AsyncGetStatus(self):
         print(await self.client.async_get_system_status())
@@ -71,6 +67,5 @@ if __name__ == "__main__":
     print("Found movie with id: {}".format(movie.tmdbId))
     added_movie = loop.run_until_complete(radarr.AddMovieByTmdbId(movie.tmdbId))
     print("Added movie with id: {}".format(added_movie.id))
-    releases = loop.run_until_complete(radarr.FindRelease(added_movie.id))
     for release in releases:
         print("Titles: {} Size: {} Seeders: {}". format(release.title, release.size, release.seeders))
