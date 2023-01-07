@@ -1,4 +1,5 @@
 import asyncio
+import xbmcgui
 from aiopyarr.models.host_configuration import PyArrHostConfiguration
 from aiopyarr.radarr_client import RadarrClient
 from aiopyarr.models.radarr import RadarrMovie
@@ -41,7 +42,15 @@ class Radarr():
         return asyncio.get_event_loop().run_until_complete(self.client.async_get_movies())
 
     def DownloadRelease(self, indexer_id, release_guid):
-        return asyncio.get_event_loop().run_until_complete(self.client.async_download_release(release_guid, indexer_id))
+        release = asyncio.get_event_loop().run_until_complete(self.client.async_download_release(release_guid, indexer_id))
+        if release is not None:
+            xbmcgui.Dialog().notification('Radarr', 'Started download for: {}'.format(movie.title))
+        return release
+
+
+
+    def AddMovieByTmdbIdSync(self, tmdb_id):
+        return asyncio.get_event_loop().run_until_complete(self.AddMovieByTmdbId(tmdb_id))
 
 
     async def AddMovieByTmdbId(self, tmdb_id):
@@ -52,10 +61,27 @@ class Radarr():
         root_folders = await root_folders
         movie.rootFolderPath = root_folders[0].path
         added_movie = await self.client.async_add_movies(movie)
+        if added_movie != None:
+            xbmcgui.Dialog().notification('Radarr', 'Successfully added movie: {}'.format(added_movie.title))
         return added_movie
 
     async def AsyncGetStatus(self):
-        print(await self.client.async_get_system_status())
+        return await self.client.async_get_system_status()
+
+    def is_connected(self):
+        try:
+            status = self.GetStatus()
+            connected = True
+        except Exception as e:
+            connected = False
+        return connected
+
+    def execute_task(self, task):
+        if task["action"] == "download_release":
+            self.DownloadRelease(task["indexer_id"], task["release_guid"])
+        elif task["action"] == "add_movie":
+            self.AddMovieByTmdbIdSync(task["tmdb_id"])
+
 
 if __name__ == "__main__":
     loop = asyncio.new_event_loop()
