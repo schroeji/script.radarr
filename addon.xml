@@ -10,7 +10,7 @@
     <menu id="kodi.core.main">
       <item library="contextitem.py">
         <label>Add to Radarr</label>
-        <visible>true</visible>
+        <visible>!String.IsEmpty(ListItem.IMDBNumber)</visible>
       </item>
     </menu>
   </extension>

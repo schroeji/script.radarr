@@ -1,72 +1,51 @@
-import asyncio
 import xbmcgui
-from aiopyarr.models.host_configuration import PyArrHostConfiguration
-from aiopyarr.radarr_client import RadarrClient
-from aiopyarr.models.radarr import RadarrMovie
-from aiopyarr.models.base import toraw
-from aiohttp.client import ClientError, ClientSession, ClientTimeout
-
+from pyarr import RadarrAPI
 
 class Radarr():
     def __init__(self, settings):
-        self.host_configuration = PyArrHostConfiguration(ipaddress=settings["ipaddress"], api_token=settings["api-key"])
-        self.client = RadarrClient(host_configuration=self.host_configuration)
+        url = "http://{}:{}".format(settings["ipaddress"], settings["port"])
+        self.client = RadarrAPI(url, settings['api-key'])
 
     def GetStatus(self):
         """Example usage of aiopyarr."""
-        return asyncio.get_event_loop().run_until_complete(self.client.async_get_system_status())
+        return self.client.get_system_status()
 
-    async def SearchMovieTmdb(self, search_string):
+    def SearchMovieTmdb(self, search_string):
         """Lookup information about movie.
         tmdb: Use TMDB IDs. Set to False to use IMDB.
         """
-        result = await self.client._async_request(
-            "movie/lookup",
-            params={"term": search_string},
-            datatype=RadarrMovie,
-        )
-        print(result[0].tmdbId)
-        return result[0]
+        return self.client.lookup_movie(search_string)[0]
 
     def FindRelease(self, radarr_id):
-        result = asyncio.get_event_loop().run_until_complete(self.client.async_get_release(radarr_id))
-        print("Found {} releases".format(len(result)))
+        params = {"movieId" : radarr_id}
+        result = self.client.request_get("release", self.client.ver_uri, params)
         return result
 
-    async def GetMovieId(self, tmdb_id):
-        result = await self.client.async_get_movies(tmdb_id, True)
-        print(result[0].tmdbId)
-        print(result[0].id)
+    def GetMovieId(self, tmdb_id):
+        return self.client.get_movie(tmdb_id)
 
     def GetAllMovies(self):
-        return asyncio.get_event_loop().run_until_complete(self.client.async_get_movies())
+        return self.client.get_movie()
 
     def DownloadRelease(self, indexer_id, release_guid):
-        release = asyncio.get_event_loop().run_until_complete(self.client.async_download_release(release_guid, indexer_id))
-        if release is not None:
-            xbmcgui.Dialog().notification('Radarr', 'Started download for: {}'.format(movie.title))
-        return release
+        params = {"indexerId" : indexer_id,
+                  "guid" : release_guid}
+        return self.client.request_post("release", self.client.ver_uri, data=params)
 
+    def GetIndexers(self):
+        return self.client.get_indexer()
 
+    def DeleteMovie(self, id):
+        self.client.del_movie(id)
 
-    def AddMovieByTmdbIdSync(self, tmdb_id):
-        return asyncio.get_event_loop().run_until_complete(self.AddMovieByTmdbId(tmdb_id))
-
-
-    async def AddMovieByTmdbId(self, tmdb_id):
-        root_folders = self.client.async_get_root_folders()
-        movie_list = await self.client.async_lookup_movie(tmdb_id, True)
-        movie = movie_list[0]
-        movie.qualityProfileId = 1
-        root_folders = await root_folders
-        movie.rootFolderPath = root_folders[0].path
-        added_movie = await self.client.async_add_movies(movie)
+    def AddMovieByTmdbId(self, tmdb_id):
+        root_folder = self.client.get_root_folder()[0]["path"]
+        quality_profile_id = 1
+        added_movie = self.client.add_movie(tmdb_id, quality_profile_id, root_folder, monitored=False, search_for_movie=False)
         if added_movie != None:
-            xbmcgui.Dialog().notification('Radarr', 'Successfully added movie: {}'.format(added_movie.title))
+            xbmcgui.Dialog().notification('Radarr', 'Successfully added movie: {}'.format(added_movie["title"]))
         return added_movie
 
-    async def AsyncGetStatus(self):
-        return await self.client.async_get_system_status()
 
     def is_connected(self):
         try:
@@ -80,20 +59,29 @@ class Radarr():
         if task["action"] == "download_release":
             self.DownloadRelease(task["indexer_id"], task["release_guid"])
         elif task["action"] == "add_movie":
-            self.AddMovieByTmdbIdSync(task["tmdb_id"])
+            self.AddMovieByTmdbId(task["tmdb_id"])
 
 
 if __name__ == "__main__":
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    radarr = Radarr()
+    settings = {
+        "ipaddress" : "127.0.0.1",
+        "port"  : "7878",
+        "api-key" : "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+    radarr = Radarr(settings)
     movies = radarr.GetAllMovies()
-    print(movies[0].__dict__.keys())
-    print(list(map(lambda movie: (movie.title, movie.hasFile), movies)))
-    search_string = "Tenet"
-    movie = loop.run_until_complete(radarr.SearchMovieTmdb(search_string))
-    print("Found movie with id: {}".format(movie.tmdbId))
-    added_movie = loop.run_until_complete(radarr.AddMovieByTmdbId(movie.tmdbId))
-    print("Added movie with id: {}".format(added_movie.id))
-    for release in releases:
-        print("Titles: {} Size: {} Seeders: {}". format(release.title, release.size, release.seeders))
+    # print(movies[0].keys())
+    # print(list(map(lambda movie: (movie["title"], movie["hasFile"]), movies)))
+    # search_string = "the good, the bad"
+    # movie = radarr.SearchMovieTmdb(search_string)
+    # print("Found movie with id: {}".format(movie["tmdbId"]))
+    # added_movie = radarr.AddMovieByTmdbId(movie["tmdbId"])
+    # print("Added movie with id: {}".format(added_movie["id"]))
+    movies = radarr.GetAllMovies()
+    # print(movies)
+    releases = radarr.FindRelease(26)
+    print(releases)
+    indexer = radarr.GetIndexers()[0]["id"]
+    release = radarr.DownloadRelease(indexer, releases[0]["guid"])
+    print(release)
+    # print("Added release {}".format(release.url))

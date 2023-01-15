@@ -14,8 +14,11 @@ def connection_established_callback(radarr):
     while radarr.is_connected():
         task = task_queue.pop()
         if task is not None:
-            radarr.execute_task(task)
-        await asyncio.sleep(5)
+            try:
+                radarr.execute_task(task)
+            except Exception as e:
+                xbmcgui.Dialog().notification("Connection lost", "Lost connection to Radarr server")
+        time.sleep(5)
     xbmcgui.Dialog().notification("Connection lost", "Lost connection to Radarr server")
 
 
@@ -26,13 +29,14 @@ if __name__ == '__main__':
     settings = LoadSettings(addon)
     first_try = True
     while not monitor.abortRequested():
-        if monitor.waitForAbort(10):
-            break
         radarr = Radarr(settings)
         connected = radarr.is_connected()
         if connected:
             connection_established_callback(radarr)
+            first_try = True
         else:
             if first_try:
                 xbmcgui.Dialog().notification("Connection error", "Could not connect to Radarr server", icon=xbmcgui.NOTIFICATION_ERROR)
             first_try = False
+        if monitor.waitForAbort(10):
+            break
