@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="repository.schroeji" name="schroeji Repository" version="2023.01.22" provider-name="schroeji">
+    <extension point="xbmc.addon.repository" name="schroeji Repository">
+	<dir minversion="16.0">
+		<info compressed="false">https://raw.githubusercontent.com/schroeji/script.radarr/master/addons.xml</info>
+		<checksum>https://raw.githubusercontent.com/schroeji/script.radarr/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://raw.githubusercontent.com/schroeji/script.radarr/master/zips/</datadir>
+	</dir>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>schroeji repo</summary>
+        <description></description>
+        <platform>all</platform>
+    </extension>
+</addon>

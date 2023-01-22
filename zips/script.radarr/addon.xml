@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.radarr" name="Radarr Integration" version="1.0.0" provider-name="schroeji">
+  <requires>
+    <import addon="xbmc.python"                version="3.0.0" />
+    <import addon="script.module.requests" version="2.22.0" />
+  </requires>
+  <extension point="xbmc.python.pluginsource"        library="default.py">
+    <provides>executable</provides>
+  </extension>
+  <extension point="kodi.context.item">
+    <menu id="kodi.core.main">
+      <item library="contextitem.py">
+        <label>Add to Radarr</label>
+        <visible>!String.IsEmpty(ListItem.IMDBNumber)</visible>
+      </item>
+    </menu>
+  </extension>
+  <extension point="xbmc.service" library="service.py" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Provides Radarr integration for Kodi</summary>
+    <description lang="en_GB"></description>
+    <disclaimer lang="en_GB"></disclaimer>
+    <license>GPL-2.0-or-later</license>
+    <source>http://github.com/you/plugin.addon.id</source>
+    <news> </news>
+    <assets>
+        <icon>resources/icon.png</icon>
+        <fanart>resources/fanart.jpg</fanart>
+    </assets>
+  </extension>
+</addon>
