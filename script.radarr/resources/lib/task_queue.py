@@ -2,7 +2,14 @@
 
 import sqlite3
 import json
-PATH = "tasks.db"
+import xbmc
+import xbmcaddon
+import xbmcvfs
+
+__addon__ = xbmcaddon.Addon()
+__profile__ = xbmcvfs.translatePath( __addon__.getAddonInfo('profile'))
+
+PATH = __profile__ + "tasks.db"
 
 def create_task(action, **kwargs):
     kwargs["action"] = action
@@ -10,6 +17,8 @@ def create_task(action, **kwargs):
 
 class TaskQueue:
     def __init__(self):
+        xbmcvfs.mkdir(__profile__)
+        xbmc.log("Creating task queue in {}".format(PATH))
         self.conn = sqlite3.connect(PATH)
         self.conn.execute('CREATE TABLE IF NOT EXISTS tasks (task json)')
 

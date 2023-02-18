@@ -33,11 +33,9 @@ class RadarrMenu():
         self.addon = xbmcaddon.Addon()
         self.settings = LoadSettings(self.addon)
         self.task_queue = TaskQueue()
-        try:
-            self.radarr = Radarr(self.settings)
-        except Exception as ex:
+        self.radarr = Radarr(self.settings)
+        if not self.radarr.is_connected():
             self.radarr = None
-            traceback.print_exception(type(ex), ex, ex.__traceback__)
             xbmcgui.Dialog().notification("Connection error", "Could not connect to Radarr server")
 
 
