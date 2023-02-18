@@ -56,12 +56,22 @@ class Radarr():
             connected = False
         return connected
 
+    def add_movie_by_title(self, title, year=None):
+        if year:
+            movie = self.SearchMovieTmdb("{} {}".format(title, year))
+        else:
+            movie = self.SearchMovieTmdb(title)
+        if movie:
+            return self.AddMovieByTmdbId(movie["tmdbId"])
+
+
     def execute_task(self, task):
         if task["action"] == "download_release":
             self.DownloadRelease(task["indexer_id"], task["release_guid"])
         elif task["action"] == "add_movie":
             self.AddMovieByTmdbId(task["tmdb_id"])
-
+        elif task["action"] == "add_movie_by_title":
+            self.add_movie_by_title(task["title"], task["year"])
 
 if __name__ == "__main__":
     settings = {
