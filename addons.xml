@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<addons><addon id="script.radarr" name="Radarr Integration" version="1.0.0" provider-name="schroeji">
+<addons><addon id="script.radarr" name="Radarr Integration" version="0.0.2" provider-name="schroeji">
   <requires>
     <import addon="xbmc.python" version="3.0.0" />
     <import addon="script.module.requests" version="2.22.0" />
@@ -21,7 +21,7 @@
     <description lang="en_GB" />
     <disclaimer lang="en_GB" />
     <license>GPL-2.0-or-later</license>
-    <source>http://github.com/you/plugin.addon.id</source>
+    <source>https://github.com/schroeji/script.radarr</source>
     <news> </news>
     <assets>
         <icon>resources/icon.png</icon>
