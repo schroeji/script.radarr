@@ -1,4 +1,5 @@
 import xbmcgui
+import xbmc
 from pyarr import RadarrAPI
 
 class Radarr():
@@ -12,7 +13,6 @@ class Radarr():
 
     def SearchMovieTmdb(self, search_string):
         """Lookup information about movie.
-        tmdb: Use TMDB IDs. Set to False to use IMDB.
         """
         return self.client.lookup_movie(search_string)[0]
 
@@ -42,8 +42,9 @@ class Radarr():
         root_folder = self.client.get_root_folder()[0]["path"]
         quality_profile_id = 1
         added_movie = self.client.add_movie(tmdb_id, quality_profile_id, root_folder, monitored=False, search_for_movie=False)
-        if added_movie != None:
+        if added_movie:
             xbmcgui.Dialog().notification('Radarr', 'Successfully added movie: {}'.format(added_movie["title"]))
+
         return added_movie
 
 
