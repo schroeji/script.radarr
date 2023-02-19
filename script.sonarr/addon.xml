@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.sonarr" name="Sonarr Integration" version="0.0.3" provider-name="schroeji">
+  <requires>
+    <import addon="xbmc.python"                version="3.0.0" />
+    <import addon="script.module.requests" version="2.22.0" />
+  </requires>
+  <extension point="xbmc.python.pluginsource"        library="default.py">
+    <provides>executable</provides>
+  </extension>
+  <extension point="kodi.context.item">
+    <menu id="kodi.core.main">
+      <item library="contextitem.py">
+        <label>Add to Sonarr</label>
+        <visible>!String.IsEmpty(ListItem.Title)</visible>
+      </item>
+    </menu>
+  </extension>
+  <extension point="xbmc.service" library="service.py" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Provides Sonarr integration for Kodi</summary>
+    <description lang="en_GB"></description>
+    <disclaimer lang="en_GB"></disclaimer>
+    <license>GPL-2.0-or-later</license>
+    <source>https://github.com/schroeji/script.radarr</source>
+    <news> </news>
+    <assets>
+        <icon>resources/icon.png</icon>
+        <fanart>resources/fanart.png</fanart>
+    </assets>
+  </extension>
+</addon>
